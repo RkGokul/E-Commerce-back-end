@@ -9,7 +9,7 @@ services:
     autoDeploy: true
     envVars:
       - key: MONGO_URI
-        value: mongodb+srv://gokul:gokul@e-commerce-cluster-01.ih46doo.mongodb.net/e-commerce?retryWrites=true&w=majority
+        value: mongodb+srv://gokul:gokul@e-commerce-cluster-01.ih46doo.mongodb.net/e-commerce
         sync: false
       - key: JWT_SECRET
         value: your_jwt_secret_key_change_this_in_production
