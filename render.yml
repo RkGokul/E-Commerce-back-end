@@ -2,11 +2,15 @@ services:
   - type: web
     name: ecommerce-backend
     env: node
+    region: oregon
+    plan: free
     buildCommand: "npm install"
     startCommand: "npm start"
-    plan: free
+    autoDeploy: true
     envVars:
       - key: MONGO_URI
+        value: mongodb+srv://gokul:gokul@e-commerce-cluster-01.ih46doo.mongodb.net/e-commerce?retryWrites=true&w=majority
         sync: false
       - key: JWT_SECRET
+        value: your_jwt_secret_key_change_this_in_production
         sync: false
