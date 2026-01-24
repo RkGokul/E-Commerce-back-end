@@ -19,16 +19,15 @@ const protect = async (req, res, next) => {
                 return res.status(401).json({ message: 'User not found' });
             }
 
-            next();
+            return next();
         } catch (error) {
             console.error(error);
             return res.status(401).json({ message: 'Not authorized, token failed' });
         }
     }
 
-    if (!token) {
-        return res.status(401).json({ message: 'Not authorized, no token' });
-    }
+    // If no token, return error
+    return res.status(401).json({ message: 'Not authorized, no token' });
 };
 
 const admin = (req, res, next) => {
