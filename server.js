@@ -12,9 +12,13 @@ connectDB();
 const app = express();
 
 // Middleware
-app.use(cors({
-  origin: "*",//"https://cute-lily-22c0b3.netlify.app/"
-  credentials: true
+app.use(cors({ 
+    origin: [
+        "https://sp-jewels.netlify.app",
+        "http://localhost:5173",
+        "http://192.168.29.67:5173"
+    ],
+    credentials: true
 }));
 
 app.use(express.json({ limit: '50mb' }))

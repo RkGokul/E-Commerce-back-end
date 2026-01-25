@@ -19,44 +19,56 @@ const generateToken = (id) => {
 // @access  Public
 router.post('/register', async (req, res) => {
     try {
-        const { name, email, password, phone } = req.body;
+        const { name, email, password, confirmPassword, phone } = req.body;
 
-        // Check if user already exists
-        const userExists = await User.findOne({ email });
-        if (userExists) {
+        // Validate fields
+        if (!name || !email || !password || !confirmPassword) {
+            return res.status(400).json({ message: 'All fields are required' });
+        }
+
+        if (password !== confirmPassword) {
+            return res.status(400).json({ message: 'Passwords do not match' });
+        }
+
+        if (password.length < 6) {
+            return res.status(400).json({ message: 'Password must be at least 6 characters' });
+        }
+
+        // Check for existing user
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
             return res.status(400).json({ message: 'User already exists' });
         }
 
-        // Create user
+        // Create new user
         const user = await User.create({
             name,
             email,
             password,
-            phone,
+            phone: phone || null,
         });
 
-        if (user) {
-            res.status(201).json({
-                _id: user._id,
-                name: user.name,
-                email: user.email,
-                phone: user.phone,
-                isAdmin: user.isAdmin,
-                token: generateToken(user._id),
-            });
-        } else {
-            res.status(400).json({ message: 'Invalid user data' });
-        }
-    } catch (error) {
-        console.error('Registration error:', error);
-        console.error('Error details:', {
-            name: error.name,
-            message: error.message,
-            stack: error.stack
+        return res.status(201).json({
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            phone: user.phone,
+            isAdmin: user.isAdmin,
+            token: generateToken(user._id),
         });
-        res.status(500).json({ message: 'Server error', error: error.message });
+
+    } catch (error) {
+        console.error('Registration Error:', error);
+
+        // Mongoose validation errors
+        if (error.name === 'ValidationError') {
+            return res.status(400).json({ message: error.message });
+        }
+
+        return res.status(500).json({ message: 'Server error' });
     }
 });
+
 
 // @route   POST /api/auth/login
 // @desc    Authenticate user & get token
