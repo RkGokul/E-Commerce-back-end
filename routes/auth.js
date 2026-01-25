@@ -6,7 +6,10 @@ const { protect } = require('../middleware/auth');
 
 // Generate JWT Token
 const generateToken = (id) => {
-    return jwt.sign({ id }, process.env.JWT_SECRET, {
+    if (!process.env.JWT_SECRET) {
+        console.warn('WARNING: JWT_SECRET is not defined in environment variables. Using a default for development ONLY.');
+    }
+    return jwt.sign({ id }, process.env.JWT_SECRET || 'dev_secret', {
         expiresIn: '30d',
     });
 };
@@ -45,7 +48,12 @@ router.post('/register', async (req, res) => {
             res.status(400).json({ message: 'Invalid user data' });
         }
     } catch (error) {
-        console.error(error);
+        console.error('Registration error:', error);
+        console.error('Error details:', {
+            name: error.name,
+            message: error.message,
+            stack: error.stack
+        });
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 });

@@ -26,11 +26,15 @@ router.get('/new-arrivals', async (req, res) => {
 });
 
 // @route   GET /api/products
-// @desc    Get all products with filters (default: newest first)
+// @desc    Get all products with filters and pagination
 // @access  Public
 router.get('/', async (req, res) => {
     try {
+        console.log('GET /api/products hit with query:', req.query);
         const { category, search, minPrice, maxPrice, sort } = req.query;
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const skip = (page - 1) * limit;
 
         let query = {};
 
@@ -66,15 +70,18 @@ router.get('/', async (req, res) => {
             sortOption = { 'ratings.average': -1 };
         }
 
-        const products = await Product.find(query).sort(sortOption);
-        console.log('Backend: Found products count:', products.length);
-        if (products.length > 0) {
-            console.log('Backend: First product in result:', products[0].name, 'createdAt:', products[0].createdAt);
-        }
+        const totalCount = await Product.countDocuments(query);
+        const products = await Product.find(query)
+            .sort(sortOption)
+            .skip(skip)
+            .limit(limit);
 
         res.json({
             success: true,
             count: products.length,
+            totalCount,
+            totalPages: Math.ceil(totalCount / limit),
+            currentPage: page,
             data: products,
         });
     } catch (error) {
