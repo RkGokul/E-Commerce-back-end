@@ -3,7 +3,7 @@ const router = express.Router();
 const Order = require('../models/Order');
 const Cart = require('../models/Cart');
 const Product = require('../models/Product');
-const { protect } = require('../middleware/auth');
+const { protect, admin } = require('../middleware/auth');
 
 // @route   POST /api/orders
 // @desc    Create new order
@@ -112,6 +112,27 @@ router.get('/:id', protect, async (req, res) => {
         res.json({
             success: true,
             data: order,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+});
+
+// @route   GET /api/orders/all
+// @desc    Get all orders (admin only)
+// @access  Private/Admin
+router.get('/all', protect, admin, async (req, res) => {
+    try {
+        const orders = await Order.find({})
+            .populate('user', 'name email phone')
+            .populate('items.product')
+            .sort({ createdAt: -1 });
+
+        res.json({
+            success: true,
+            count: orders.length,
+            data: orders,
         });
     } catch (error) {
         console.error(error);

@@ -186,4 +186,21 @@ router.put('/profile', protect, async (req, res) => {
     }
 });
 
+// @route   GET /api/auth/users
+// @desc    Get all users (admin only)
+// @access  Private/Admin
+router.get('/users', protect, admin, async (req, res) => {
+    try {
+        const users = await User.find({}).select('-password');
+        res.json({
+            success: true,
+            count: users.length,
+            data: users
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+});
+
 module.exports = router;

@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Contact = require('../models/Contact');
+const { protect, admin } = require('../middleware/auth');
 
 // @route   POST /api/contact
 // @desc    Create a new contact message
@@ -48,8 +49,8 @@ router.post('/', async (req, res) => {
 
 // @route   GET /api/contact
 // @desc    Get all contact messages (admin only)
-// @access  Private
-router.get('/', async (req, res) => {
+// @access  Private/Admin
+router.get('/', protect, admin, async (req, res) => {
   try {
     const contacts = await Contact.find().sort({ createdAt: -1 });
 

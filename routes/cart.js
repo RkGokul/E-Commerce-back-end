@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Cart = require('../models/Cart');
 const Product = require('../models/Product');
-const { protect } = require('../middleware/auth');
+const { protect, admin } = require('../middleware/auth');
 
 // @route   GET /api/cart
 // @desc    Get user's cart
@@ -188,6 +188,26 @@ router.delete('/clear', protect, async (req, res) => {
         res.json({
             success: true,
             data: cart,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+});
+
+// @route   GET /api/cart/all
+// @desc    Get all carts (admin only)
+// @access  Private/Admin
+router.get('/all', protect, admin, async (req, res) => {
+    try {
+        const carts = await Cart.find({})
+            .populate('user', 'name email phone')
+            .populate('items.product');
+
+        res.json({
+            success: true,
+            count: carts.length,
+            data: carts,
         });
     } catch (error) {
         console.error(error);
