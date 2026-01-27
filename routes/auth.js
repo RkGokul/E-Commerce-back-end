@@ -14,33 +14,54 @@ const generateToken = (id) => {
     });
 };
 
+// @route   GET /api/auth/test-db
+// @desc    Test database connection
+// @access  Public
+router.get('/test-db', async (req, res) => {
+    try {
+        const count = await User.countDocuments();
+        res.json({ success: true, message: 'Database connected!', count });
+    } catch (err) {
+        console.error('DB Test Error:', err);
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
 // @route   POST /api/auth/register
 // @desc    Register a new user
 // @access  Public
 router.post('/register', async (req, res) => {
     try {
+        console.log('--- Registration Request ---');
+        console.log('Body:', { ...req.body, password: '***', confirmPassword: '***' });
         const { name, email, password, confirmPassword, phone } = req.body;
 
-        // Validate fields
+        // Validate
         if (!name || !email || !password || !confirmPassword) {
+            console.log('Validation failed: Missing fields');
             return res.status(400).json({ message: 'All fields are required' });
         }
 
         if (password !== confirmPassword) {
+            console.log('Validation failed: Passwords do not match');
             return res.status(400).json({ message: 'Passwords do not match' });
         }
 
         if (password.length < 6) {
+            console.log('Validation failed: Password too short');
             return res.status(400).json({ message: 'Password must be at least 6 characters' });
         }
 
-        // Check for existing user
+        // Check existing user
+        console.log('Checking for existing user with email:', email);
         const existingUser = await User.findOne({ email });
         if (existingUser) {
+            console.log('User already exists:', email);
             return res.status(400).json({ message: 'User already exists' });
         }
 
-        // Create new user
+        // Create user
+        console.log('Creating user in database...');
         const user = await User.create({
             name,
             email,
@@ -48,6 +69,9 @@ router.post('/register', async (req, res) => {
             phone: phone || null,
         });
 
+        console.log('User created successfully:', user._id);
+
+        // Response
         return res.status(201).json({
             _id: user._id,
             name: user.name,
@@ -58,16 +82,18 @@ router.post('/register', async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Registration Error:', error);
-
-        // Mongoose validation errors
-        if (error.name === 'ValidationError') {
-            return res.status(400).json({ message: error.message });
-        }
-
-        return res.status(500).json({ message: 'Server error' });
+        console.error('CRITICAL Registration Error:');
+        console.error(error);
+        return res.status(500).json({
+            message: 'Server error during registration',
+            error: error.message,
+            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        });
     }
 });
+
+
+
 
 
 // @route   POST /api/auth/login
