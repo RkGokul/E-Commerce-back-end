@@ -14,7 +14,7 @@ const app = express();
 // Middleware
 app.use(cors({ 
     origin: [
-        "https://sp-jewels.netlify.app",
+        "https://e-commerce-blue-phi.vercel.app",
         "http://localhost:5173",
         "http://192.168.29.67:5173"
     ],
