@@ -93,6 +93,27 @@ router.get('/', protect, async (req, res) => {
     }
 });
 
+// @route   GET /api/orders/all
+// @desc    Get all orders (admin only)
+// @access  Private/Admin
+router.get('/all', protect, admin, async (req, res) => {
+    try {
+        const orders = await Order.find({})
+            .populate('user', 'name email phone')
+            .populate('items.product')
+            .sort({ createdAt: -1 });
+
+        res.json({
+            success: true,
+            count: orders.length,
+            data: orders,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+});
+
 // @route   GET /api/orders/:id
 // @desc    Get order by ID
 // @access  Private
@@ -112,27 +133,6 @@ router.get('/:id', protect, async (req, res) => {
         res.json({
             success: true,
             data: order,
-        });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Server error', error: error.message });
-    }
-});
-
-// @route   GET /api/orders/all
-// @desc    Get all orders (admin only)
-// @access  Private/Admin
-router.get('/all', protect, admin, async (req, res) => {
-    try {
-        const orders = await Order.find({})
-            .populate('user', 'name email phone')
-            .populate('items.product')
-            .sort({ createdAt: -1 });
-
-        res.json({
-            success: true,
-            count: orders.length,
-            data: orders,
         });
     } catch (error) {
         console.error(error);

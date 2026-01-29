@@ -90,6 +90,22 @@ router.get('/', async (req, res) => {
     }
 });
 
+// @route   GET /api/products/categories/all
+// @desc    Get all categories
+// @access  Public
+router.get('/categories/all', async (req, res) => {
+    try {
+        const categories = await Product.distinct('category');
+        res.json({
+            success: true,
+            data: categories,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+});
+
 // @route   GET /api/products/:id
 // @desc    Get single product
 // @access  Public
@@ -179,6 +195,19 @@ router.put('/:id', protect, admin, async (req, res) => {
     }
 });
 
+// @route   DELETE /api/products/delete-all
+// @desc    Delete all products
+// @access  Private/Admin
+router.delete('/delete-all', protect, admin, async (req, res) => {
+    try {
+        await Product.deleteMany({});
+        res.json({ success: true, message: 'All products deleted successfully' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+});
+
 // @route   DELETE /api/products/:id
 // @desc    Delete a product
 // @access  Private/Admin
@@ -200,35 +229,6 @@ router.delete('/:id', protect, admin, async (req, res) => {
     }
 });
 
-// @route   GET /api/products/categories/all
-// @desc    Get all categories
-// @access  Public
-router.get('/categories/all', async (req, res) => {
-    try {
-        const categories = await Product.distinct('category');
-        res.json({
-            success: true,
-            data: categories,
-        });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Server error', error: error.message });
-    }
-});
-
-// @route   DELETE /api/products/delete-all
-// @desc    Delete all products
-// @access  Private/Admin
-router.delete('/delete-all', protect, admin, async (req, res) => {
-    try {
-        await Product.deleteMany({});
-        res.json({ success: true, message: 'All products deleted successfully' });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Server error', error: error.message });
-    }
-});
-
 // Sample products data for seeding
 const sampleProducts = [
     // Jewelry Products
@@ -237,7 +237,7 @@ const sampleProducts = [
         description: 'Beautiful gold plated necklace with matching earrings. Perfect for weddings and special occasions.',
         price: 2499,
         originalPrice: 3500,
-        category: 'Jewelry', // Note: Frontend uses "Jewellery" but seed uses "Jewelry". We should align.
+        category: 'Jewellery',
         subcategory: 'Necklace',
         images: ['https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=500'],
         features: ['24k Gold Plated', 'Matching Earrings included', 'Premium Craftsmanship', 'Elegant Design'],
@@ -250,7 +250,7 @@ const sampleProducts = [
         name: 'Diamond Studded Earrings',
         description: 'Elegant diamond studded earrings with 18k gold finish.',
         price: 3999,
-        category: 'Jewelry',
+        category: 'Jewellery',
         subcategory: 'Earrings',
         images: ['https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=500'],
         stock: 15,
@@ -261,7 +261,7 @@ const sampleProducts = [
         name: 'Silver Bracelet',
         description: 'Pure silver bracelet with intricate design work.',
         price: 1299,
-        category: 'Jewelry',
+        category: 'Jewellery',
         subcategory: 'Bracelet',
         images: ['https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=500'],
         stock: 30,
@@ -272,7 +272,7 @@ const sampleProducts = [
         name: 'Pearl Pendant Set',
         description: 'Classic pearl pendant with chain and earrings.',
         price: 1899,
-        category: 'Jewelry',
+        category: 'Jewellery',
         subcategory: 'Pendant',
         images: ['https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=500'],
         stock: 20,
@@ -283,7 +283,7 @@ const sampleProducts = [
         name: 'Traditional Bangles Set',
         description: 'Set of 6 traditional gold plated bangles.',
         price: 1599,
-        category: 'Jewelry',
+        category: 'Jewellery',
         subcategory: 'Bangles',
         images: ['https://images.unsplash.com/photo-1602751584552-8ba73aad10e1?w=500'],
         stock: 40,
