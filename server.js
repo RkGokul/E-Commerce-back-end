@@ -12,11 +12,11 @@ connectDB();
 const app = express();
 
 // Middleware
-app.use(cors({ 
+app.use(cors({
     origin: [
-        "https://e-commerce-blue-phi.vercel.app",
-        "http://localhost:5173",
-        "http://192.168.29.67:5173"
+        "https://e-commerce-blue-phi.vercel.app"
+        // "http://localhost:5173",
+        // "http://192.168.29.67:5173"
     ],
     credentials: true
 }));
@@ -30,6 +30,7 @@ app.use('/api/products', require('./routes/products'));
 app.use('/api/cart', require('./routes/cart'));
 app.use('/api/orders', require('./routes/orders'));
 app.use('/api/contact', require('./routes/contact'));
+app.use('/api/admin', require('./routes/admin'));
 
 // Root route
 app.get('/', (req, res) => {
